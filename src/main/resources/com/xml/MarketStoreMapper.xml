@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cms.mapper.marketstore.MarketStoreMapper">
+	<select id="select"
+        parameterType="com.cms.entity.marketstore.CmsMarketStoreBean"
+        resultType="com.cms.entity.marketstore.CmsMarketStoreBean">      
+		SELECT
+			cms.name
+		    ,mkt.storeId                                
+		    ,mkt.storeName                            
+		    ,mkt.address                                
+		    ,mkt.phone                                  
+		    ,DATE_FORMAT(mkt.startDay, '%Y-%m-%d') as startDay
+		    ,DATE_FORMAT(mkt.finishDay, '%Y-%m-%d') as finishDay 
+		    ,mkt.registDay
+		    ,mkt.updateDay                           
+		FROM
+		    mysql_test.market_store mkt 
+		    left join cms_employee cms on cms.employeeId = mkt.storeId
+        <where>
+        <if test="name != null">
+        	and name like concat('%',#{cms.name},'%')
+        </if>
+        <if test="storeId != null">
+        	and storeId = #{storeId}
+        </if>
+        <if test="address != null">
+        	and address like concat('%',#{address},'%')
+        </if>
+        <if test="storeName != null">
+        	and storeName like concat('%',#{storeName},'%')
+        </if>
+        </where> 
+		ORDER BY
+			storeId
+			
+	</select>
+	
+	<select id="selectMaxId" resultType="String">
+        SELECT
+        max(storeId) as storeId
+        FROM market_store
+	</select>
+	
+ 	<insert id="insert"
+       parameterType="com.cms.entity.marketstore.CmsMarketStoreBean">
+       INSERT INTO market_store (
+	       storeId,
+	       storeName,
+	       address,
+	       phone,
+	       startDay,
+	       finishDay,
+	       registDay,
+	       updateDay
+       )
+       VALUES (
+	       #{storeId},
+	       #{storeName},
+	       #{address},
+	       #{phone},
+	       STR_TO_DATE(#{startDay}, '%Y-%m-%d'),
+	       STR_TO_DATE(#{finishDay}, '%Y-%m-%d'),
+	       sysdate(),
+	       sysdate()
+       )
+	</insert>
+	
+	<update id="update"
+        parameterType="com.cms.entity.marketstore.CmsMarketStoreBean">
+        update market_store
+        set 
+	       storeId = #{storeId},
+	       storeName = #{storeName},
+	       address = #{address},
+	       phone = #{phone},
+	       startDay = STR_TO_DATE(#{startDay}, '%Y-%m-%d'),
+	       finishDay = STR_TO_DATE(#{finishDay}, '%Y-%m-%d'),
+	       registDay = sysdate(),
+	       updateDay = sysdate()
+        where storeId = #{storeId}
+	</update>
+	
+	<delete id="delete"
+		parameterType = "com.cms.entity.marketstore.CmsMarketStoreBean">
+		delete from market_store
+		where storeId = #{storeId}
+	</delete>
+	
+	<delete id="deleteAll">
+        delete from market_store where storeId in
+        <foreach collection="array" open="(" close=")" item="item"
+        	separator=",">
+        	#{item}
+        </foreach>
+	</delete>
+</mapper>
