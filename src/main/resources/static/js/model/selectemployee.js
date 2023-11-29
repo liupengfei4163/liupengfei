@@ -30,7 +30,7 @@ $("#searchEmployees").click(function() {
             });
             
             outputContent += "</table>"
-            
+                   
             $('#outputdiv').html(outputContent);
         },
         error: function (data) {
